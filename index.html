@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>中式修仙 放置</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>中式修仙 · 放置修真</h1>
+      <p class="subtitle">参考：《银河奶牛放置》 — 简洁版中式修仙挂机示例</p>
+    </header>
+
+    <section class="stats">
+      <div>元气: <span id="qi">0</span></div>
+      <div>每秒元气: <span id="qiPerSec">0</span></div>
+      <div>点修收益: <span id="clickPower">1</span></div>
+      <div>转生灵根: <span id="prestigeSeeds">0</span></div>
+      <div>境界: <span id="rank">凡人</span></div>
+    </section>
+
+    <section class="actions">
+      <button id="cultivate">修炼一下 (+)</button>
+      <button id="prestige">转生（重置，获得灵根）</button>
+    </section>
+
+    <section class="upgrades">
+      <h2>法宝 / 升级</h2>
+      <div id="upgradesList"></div>
+    </section>
+
+    <section class="controls">
+      <button id="exportSave">导出存档</button>
+      <button id="importSave">导入存档</button>
+      <input id="importArea" placeholder="在此粘贴存档 JSON 并点导入" />
+      <div class="log" id="log"></div>
+    </section>
+
+    <footer>
+      <small>仅为示例作品，可扩展：更多升级、挂机活动、剧情、社交。</small>
+    </footer>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
