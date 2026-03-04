@@ -1,48 +1,145 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>中式修仙 放置</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深渊小钓</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>中式修仙 · 放置修真</h1>
-      <p class="subtitle">参考：《银河奶牛放置》 — 简洁版中式修仙挂机示例</p>
-    </header>
+    <div class="container">
+        <!-- 游戏主区域 -->
+        <div class="game-area">
+            <!-- 显示信息栏 -->
+            <div class="info-bar">
+                <div class="info-item">
+                    <span class="label">金币:</span>
+                    <span class="value" id="coins">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">背包:</span>
+                    <span class="value" id="inventory-count">0/20</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">深度:</span>
+                    <span class="value" id="current-depth">0m</span>
+                </div>
+            </div>
 
-    <section class="stats">
-      <div>元气: <span id="qi">0</span></div>
-      <div>每秒元气: <span id="qiPerSec">0</span></div>
-      <div>点修收益: <span id="clickPower">1</span></div>
-      <div>转生灵根: <span id="prestigeSeeds">0</span></div>
-      <div>境界: <span id="rank">凡人</span></div>
-    </section>
+            <!-- 钓鱼画布区域 -->
+            <div class="fishing-area">
+                <svg id="fishing-canvas" width="100%" height="600" viewBox="0 0 800 600">
+                    <!-- 海平面 -->
+                    <line x1="0" y1="50" x2="800" y2="50" class="sea-level" />
+                    <text x="10" y="40" class="depth-label">0m</text>
 
-    <section class="actions">
-      <button id="cultivate">修炼一下 (+)</button>
-      <button id="prestige">转生（重置，获得灵根）</button>
-    </section>
+                    <!-- 鱼钩 -->
+                    <circle id="hook" cx="400" cy="50" r="8" class="hook" />
+                    <line id="hook-line" x1="400" y1="50" x2="400" y2="50" class="hook-line" />
 
-    <section class="upgrades">
-      <h2>法宝 / 升级</h2>
-      <div id="upgradesList"></div>
-    </section>
+                    <!-- 深度刻度 -->
+                    <g id="depth-markers" class="depth-markers">
+                        <!-- 动态生成 -->
+                    </g>
 
-    <section class="controls">
-      <button id="exportSave">导出存档</button>
-      <button id="importSave">导入存档</button>
-      <input id="importArea" placeholder="在此粘贴存档 JSON 并点导入" />
-      <div class="log" id="log"></div>
-    </section>
+                    <!-- 鱼 -->
+                    <g id="fish-group" class="fish-group">
+                        <!-- 动态生成 -->
+                    </g>
 
-    <footer>
-      <small>仅为示例作品，可扩展：更多升级、挂机活动、剧情、社交。</small>
-    </footer>
-  </div>
+                    <!-- 标题 -->
+                    <text x="400" y="30" text-anchor="middle" class="canvas-title">深渊小钓</text>
+                </svg>
+            </div>
 
-  <script src="game.js"></script>
+            <!-- 状态显示 -->
+            <div class="status-display" id="status-display">
+                <p id="status-text">准备就绪</p>
+            </div>
+        </div>
+
+        <!-- 右侧控制面板 -->
+        <div class="control-panel">
+            <!-- 背包区域 -->
+            <div class="section inventory-section">
+                <h3>背包</h3>
+                <div class="inventory-list" id="inventory-list">
+                    <!-- 动态生成 -->
+                </div>
+                <button class="btn btn-primary" id="sell-all-btn">一键出售</button>
+                <div class="sell-summary" id="sell-summary"></div>
+            </div>
+
+            <!-- 能力升级 -->
+            <div class="section upgrade-section">
+                <h3>能力升级</h3>
+                
+                <div class="upgrade-item">
+                    <div class="upgrade-header">
+                        <span class="upgrade-name">最大深度</span>
+                        <span class="upgrade-level" id="max-depth-level">Lv.1</span>
+                    </div>
+                    <div class="upgrade-stat">
+                        当前: <span id="max-depth-value">100</span>m
+                    </div>
+                    <div class="upgrade-cost">
+                        升级费用: <span id="max-depth-cost">50</span> 金币
+                    </div>
+                    <button class="btn btn-upgrade" id="upgrade-max-depth" data-upgrade="maxDepth">升级</button>
+                </div>
+
+                <div class="upgrade-item">
+                    <div class="upgrade-header">
+                        <span class="upgrade-name">移动速度</span>
+                        <span class="upgrade-level" id="speed-level">Lv.1</span>
+                    </div>
+                    <div class="upgrade-stat">
+                        当前: <span id="speed-value">50</span> m/s
+                    </div>
+                    <div class="upgrade-cost">
+                        升级费用: <span id="speed-cost">50</span> 金币
+                    </div>
+                    <button class="btn btn-upgrade" id="upgrade-speed" data-upgrade="speed">升级</button>
+                </div>
+
+                <div class="upgrade-item">
+                    <div class="upgrade-header">
+                        <span class="upgrade-name">背包容量</span>
+                        <span class="upgrade-level" id="inventory-capacity-level">Lv.1</span>
+                    </div>
+                    <div class="upgrade-stat">
+                        当前: <span id="inventory-capacity-value">20</span>格 (每条鱼占5格)
+                    </div>
+                    <div class="upgrade-cost">
+                        升级费用: <span id="inventory-capacity-cost">50</span> 金币
+                    </div>
+                    <button class="btn btn-upgrade" id="upgrade-inventory-capacity" data-upgrade="inventoryCapacity">升级</button>
+                </div>
+            </div>
+
+            <!-- 游戏控制 -->
+            <div class="section control-section">
+                <h3>游戏控制</h3>
+                <button class="btn btn-primary" id="start-btn">开始游戏</button>
+                <button class="btn btn-secondary" id="pause-btn">暂停</button>
+                <button class="btn btn-danger" id="reset-btn">重置游戏</button>
+            </div>
+
+            <!-- 统计信息 -->
+            <div class="section stats-section">
+                <h3>统计</h3>
+                <div class="stat-item">
+                    <span>已钓鱼条数:</span>
+                    <span id="fish-count">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>总收入:</span>
+                    <span id="total-income">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
 </body>
 </html>

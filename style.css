@@ -1,20 +1,394 @@
-:root{--bg:#0f1720;--panel:#0b1220;--accent:#b27b3d;--muted:#9aa4b2;--glass:rgba(255,255,255,0.03)}
-*{box-sizing:border-box;font-family:Segoe UI,system-ui,-apple-system,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif}
-body{margin:0;background:linear-gradient(180deg,#081018 0%,#07121a 100%);color:#e6eef6;min-height:100vh;display:flex;align-items:center;justify-content:center}
-.container{width:980px;max-width:96%;padding:20px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));box-shadow:0 10px 30px rgba(2,6,23,0.7)}
-header h1{margin:0;font-size:22px;color:var(--accent)}
-.subtitle{margin:4px 0 12px;color:var(--muted)}
-.stats{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:12px}
-.stats div{background:var(--glass);padding:8px 12px;border-radius:8px;color:#dbe9ff}
-.actions{display:flex;gap:12px;margin-bottom:12px}
-.actions button{padding:12px 18px;border-radius:8px;border:0;background:linear-gradient(180deg,var(--accent),#90603a);color:#081018;font-weight:700;cursor:pointer}
-.upgrades{margin-bottom:12px}
-#upgradesList{display:flex;flex-wrap:wrap;gap:10px}
-.upgrade{background:rgba(255,255,255,0.03);padding:10px;border-radius:8px;width:220px}
-.upgrade button{margin-top:8px;padding:6px 8px;border-radius:6px;border:0;background:#16324a;color:#cfe9ff;cursor:pointer}
-.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.controls input{flex:1;padding:8px;border-radius:6px;border:0;background:#0b1622;color:#dbe9ff}
-.log{width:100%;margin-top:8px;color:var(--muted);font-size:13px}
-footer{margin-top:10px;color:var(--muted)}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-@media(max-width:640px){.stats{flex-direction:column}.upgrade{width:100%}.actions{flex-direction:column}}
+body {
+    font-family: 'Microsoft YaHei', Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #333;
+    min-height: 100vh;
+    padding: 10px;
+}
+
+.container {
+    display: flex;
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    height: 100vh;
+}
+
+/* 游戏主区域 */
+.game-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.info-bar {
+    display: flex;
+    gap: 30px;
+    padding: 15px 20px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 16px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.info-item .label {
+    font-weight: bold;
+}
+
+.info-item .value {
+    min-width: 80px;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.fishing-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #87ceeb 0%, #e0f6ff 50%, #c0e0e8 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+#fishing-canvas {
+    background: linear-gradient(180deg, #87ceeb 0%, #e0f6ff 50%, #c0e0e8 100%);
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.sea-level {
+    stroke: #4a90e2;
+    stroke-width: 3;
+    stroke-dasharray: 5, 5;
+}
+
+.depth-label {
+    font-size: 12px;
+    fill: #666;
+}
+
+.hook {
+    fill: #ff6b6b;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.hook-line {
+    stroke: #333;
+    stroke-width: 2;
+}
+
+.depth-markers line {
+    stroke: #bbb;
+    stroke-width: 1;
+}
+
+.depth-markers text {
+    font-size: 11px;
+    fill: #666;
+}
+
+.canvas-title {
+    font-size: 24px;
+    font-weight: bold;
+    fill: #667eea;
+    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
+}
+
+.status-display {
+    padding: 10px 20px;
+    background: #f5f5f5;
+    border-top: 1px solid #ddd;
+    text-align: center;
+    min-height: 30px;
+}
+
+#status-text {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+}
+
+/* 控制面板 */
+.control-panel {
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.section {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.section h3 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    color: #667eea;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 8px;
+}
+
+/* 背包区域 */
+.inventory-list {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    min-height: 40px;
+}
+
+.inventory-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    font-size: 13px;
+}
+
+.inventory-item-name {
+    font-weight: bold;
+    color: #333;
+}
+
+.inventory-item-size {
+    color: #666;
+    font-size: 12px;
+}
+
+.inventory-item-price {
+    color: #e2a76f;
+    font-weight: bold;
+}
+
+.sell-summary {
+    margin-top: 10px;
+    padding: 8px;
+    background: #e8f5e9;
+    border-radius: 4px;
+    border-left: 3px solid #4caf50;
+    font-size: 13px;
+    min-height: 20px;
+}
+
+/* 能力升级 */
+.upgrade-item {
+    margin-bottom: 15px;
+    padding: 10px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.upgrade-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.upgrade-name {
+    font-weight: bold;
+    color: #333;
+}
+
+.upgrade-level {
+    color: #667eea;
+    font-size: 12px;
+}
+
+.upgrade-stat {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.upgrade-cost {
+    font-size: 12px;
+    color: #e2a76f;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+/* 按钮 */
+.btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.btn-primary {
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: #95a5a6;
+    color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: #7f8c8d;
+}
+
+.btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-danger {
+    background: #e74c3c;
+    color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: #c0392b;
+}
+
+.btn-upgrade {
+    background: #3498db;
+    color: white;
+    padding: 6px 10px;
+    font-size: 12px;
+}
+
+.btn-upgrade:hover:not(:disabled) {
+    background: #2980b9;
+    transform: translateY(-2px);
+}
+
+.btn-upgrade:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 统计信息 */
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-item span:last-child {
+    font-weight: bold;
+    color: #667eea;
+}
+
+/* 鱼的样式 */
+.fish {
+    cursor: pointer;
+    filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+.fish:hover {
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.fish-body {
+    stroke: none;
+}
+
+.fish-eye {
+    fill: white;
+}
+
+.fish-tail {
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+    .control-panel {
+        width: 280px;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 900px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+        gap: 10px;
+    }
+
+    .game-area {
+        min-height: 500px;
+    }
+
+    .control-panel {
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .section {
+        flex: 1 1 calc(50% - 10px);
+        min-width: 200px;
+    }
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #764ba2;
+}
